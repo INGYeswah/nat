@@ -101,6 +101,12 @@ export function Login() {
             <p className="text-xs text-gray-600">
               Supply → Cédula: <strong>20203030</strong> / Contraseña: <strong>supply123</strong>
             </p>
+            <p className="text-xs text-gray-600">
+              Comercial → Cédula: <strong>30304040</strong> / Contraseña: <strong>comercial123</strong>
+            </p>
+            <p className="text-xs text-gray-600">
+              Producción → Cédula: <strong>40405050</strong> / Contraseña: <strong>prod1234</strong>
+            </p>
           </div>
         </div>
       </div>

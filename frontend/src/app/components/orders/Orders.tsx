@@ -11,6 +11,7 @@ import {
   MessageSquare,
   Ban,
   Factory,
+  Plus,
 } from "lucide-react";
 import { useData } from "../../context/DataContext";
 
@@ -50,6 +51,9 @@ export function Orders() {
     cancelOrder,
     updateOrderComments,
     updateLotStatus,
+    addOrder,
+    clients,
+    products,
     loading,
   } = useData();
   const [searchTerm, setSearchTerm] = useState("");
@@ -60,6 +64,17 @@ export function Orders() {
   const [commentModal, setCommentModal] = useState<{ id: string; currentComment: string } | null>(null);
   const [commentText, setCommentText] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [isCreateOrderOpen, setIsCreateOrderOpen] = useState(false);
+  const [orderSubmitting, setOrderSubmitting] = useState(false);
+  const [orderError, setOrderError] = useState<string | null>(null);
+  const [orderForm, setOrderForm] = useState({
+    id_cliente: "",
+    id_producto: "",
+    cantidad: 1,
+    estado_pedido: "Pendiente",
+    comentarios: "",
+  });
+  const selectedProduct = products.find((p) => p.id === orderForm.id_producto);
 
   // Cancel modal
   const [cancelModal, setCancelModal] = useState<string | null>(null);
@@ -134,9 +149,22 @@ export function Orders() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">Pedidos y Logística</h1>
-        <p className="text-gray-600 mt-1">Gestión de pedidos, envíos y producción</p>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Pedidos y Logística</h1>
+          <p className="text-gray-600 mt-1">Gestión de pedidos, envíos y producción</p>
+        </div>
+        <button
+          onClick={() => {
+            setOrderError(null);
+            setOrderForm({ id_cliente: "", id_producto: "", cantidad: 1, estado_pedido: "Pendiente", comentarios: "" });
+            setIsCreateOrderOpen(true);
+          }}
+          className="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition shadow-sm"
+        >
+          <Plus className="h-4 w-4" />
+          Nuevo Pedido
+        </button>
       </div>
 
       {/* Tab selector */}
@@ -290,6 +318,140 @@ export function Orders() {
           </button>
         </div>
       </div>
+
+      {isCreateOrderOpen && (
+        <div className="fixed inset-0 backdrop-blur-sm z-50 flex items-center justify-center">
+          <div className="fixed inset-0 bg-black/50" onClick={() => !orderSubmitting && setIsCreateOrderOpen(false)} />
+          <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-2xl mx-4">
+            <div className="border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+              <h3 className="text-lg font-bold text-gray-900">Crear Pedido</h3>
+              <button onClick={() => !orderSubmitting && setIsCreateOrderOpen(false)} className="p-2 hover:bg-gray-100 rounded-lg transition">
+                <X className="h-5 w-5 text-gray-500" />
+              </button>
+            </div>
+            <form className="p-6 space-y-4" onSubmit={async (e) => {
+              e.preventDefault();
+              if (orderSubmitting) return;
+              if (!orderForm.id_cliente || !orderForm.id_producto || orderForm.cantidad < 1) {
+                setOrderError("Selecciona cliente, producto y cantidad válida.");
+                return;
+              }
+              setOrderSubmitting(true);
+              setOrderError(null);
+              const product = products.find((p) => p.id === orderForm.id_producto);
+              const ok = await addOrder({
+                id_cliente: orderForm.id_cliente,
+                id_producto: orderForm.id_producto,
+                cantidad: orderForm.cantidad,
+                precio_unitario: product?.salePrice || 0,
+                estado_pedido: orderForm.estado_pedido,
+                comentarios: orderForm.comentarios || undefined,
+              });
+              setOrderSubmitting(false);
+              if (ok) {
+                setIsCreateOrderOpen(false);
+                setOrderForm({ id_cliente: "", id_producto: "", cantidad: 1, estado_pedido: "Pendiente", comentarios: "" });
+              } else {
+                setOrderError("No se pudo crear el pedido. Revisa los datos e intenta de nuevo.");
+              }
+            }}>
+              {orderError && (
+                <div className="rounded-xl bg-red-50 border border-red-200 p-3 text-sm text-red-700">
+                  {orderError}
+                </div>
+              )}
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Cliente *</label>
+                  <select
+                    value={orderForm.id_cliente}
+                    onChange={(e) => setOrderForm({ ...orderForm, id_cliente: e.target.value })}
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none"
+                  >
+                    <option value="">Seleccionar cliente...</option>
+                    {clients.map((client) => (
+                      <option key={client.id} value={client.id}>{client.name}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Producto *</label>
+                  <select
+                    value={orderForm.id_producto}
+                    onChange={(e) => setOrderForm({ ...orderForm, id_producto: e.target.value })}
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none"
+                  >
+                    <option value="">Seleccionar producto...</option>
+                    {products.map((product) => (
+                      <option key={product.id} value={product.id}>{product.name}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Cantidad *</label>
+                  <input
+                    type="number"
+                    min={1}
+                    value={orderForm.cantidad}
+                    onChange={(e) => setOrderForm({ ...orderForm, cantidad: Number(e.target.value) })}
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Estado</label>
+                  <select
+                    value={orderForm.estado_pedido}
+                    onChange={(e) => setOrderForm({ ...orderForm, estado_pedido: e.target.value })}
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none"
+                  >
+                    {Object.keys(statusConfig).map((estado) => (
+                      <option key={estado} value={estado}>{statusConfig[estado].label}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Precio unitario</label>
+                  <input
+                    type="text"
+                    readOnly
+                    value={selectedProduct ? `$${selectedProduct.salePrice.toLocaleString()}` : "-"}
+                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg outline-none"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Comentarios</label>
+                <textarea
+                  value={orderForm.comentarios}
+                  onChange={(e) => setOrderForm({ ...orderForm, comentarios: e.target.value })}
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none"
+                  rows={3}
+                  placeholder="Notas opcionales..."
+                />
+              </div>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 pt-4 border-t border-gray-200">
+                <button
+                  type="button"
+                  onClick={() => { setIsCreateOrderOpen(false); setOrderError(null); }}
+                  disabled={orderSubmitting}
+                  className="w-full px-4 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-medium disabled:opacity-50"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={orderSubmitting}
+                  className="w-full px-4 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium disabled:opacity-50"
+                >
+                  {orderSubmitting ? "Creando pedido..." : "Crear pedido"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* ═══════════════════════════════════════════════════════════════════════
           TABLA DE PEDIDOS

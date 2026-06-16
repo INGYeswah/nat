@@ -705,8 +705,8 @@ export function Personnel() {
                 </div>
                 <div className="relative">
                   <input
-                    type={showCurrentPassword ? "text" : "password"}
-                    value="••••••••"
+                    type="text"
+                    value={showCurrentPassword ? "No disponible por seguridad" : "••••••••"}
                     readOnly
                     className="w-full px-4 py-2.5 border border-purple-200 bg-purple-100 rounded-lg text-purple-800 text-sm cursor-default pr-10"
                   />
@@ -720,6 +720,9 @@ export function Personnel() {
                 </div>
                 <p className="text-xs text-purple-600 mt-1">
                   {emp ? `${emp.name} — ${emp.cedula}` : "Empleado"}
+                </p>
+                <p className="text-xs text-purple-500 mt-1">
+                  La contraseña actual no se muestra en texto plano por seguridad.
                 </p>
               </div>
 

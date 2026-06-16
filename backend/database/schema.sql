@@ -78,7 +78,9 @@ CREATE TABLE `PROVEEDOR` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 INSERT INTO `PROVEEDOR` (`id_proveedor`, `razon_social`, `nit`, `telefono`) VALUES
-        ('prov-agrovalle', 'AgroValle S.A.S.', '900.123.456-1', '311-555-0192');
+        ('prov-agrovalle', 'AgroValle S.A.S.', '900.123.456-1', '311-555-0192'),
+        ('prov-biofit',   'BioFit Labs S.A.S.', '900.222.333-5', '310-555-0211'),
+        ('prov-herbal',   'Herbal Suministros Ltda.', '900.333.444-6', '320-555-0144');
 
 -- =============================================================================
 -- 3. USUARIO  (depende de ROL)
@@ -100,9 +102,11 @@ CREATE TABLE `USUARIO` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 INSERT INTO `USUARIO` (`id_usuario`, `id_rol`, `nombre_completo`, `cedula`, `email`, `password_hash`, `estado_activo`) VALUES
-        ('usr-admin-01',  1, 'Jefferson Acosta (CEO)',  '10102020', 'ceo@natudai.com',   '$2b$10$CmDvovDSN7sk/brY29vEOOLRukgobSELRREpuz1TMUoydMYiJZUaG', 1),
-        ('usr-supply-01', 2, 'Marta Gómez (Logística)', '20203030', 'supply@natudai.com','$2b$10$6TOcLSrXupT24MyjHP1zh.H6HiQ/4GIsmkr0czdjOS91ATIZYzLoi', 1);
--- Credenciales: 10102020/admin123  ·  20203030/supply123
+        ('usr-admin-01',      1, 'Jefferson Acosta (CEO)',      '10102020', 'ceo@natudai.com',        '$2b$10$3/9wnXP0WTvGLJpUi2JZi.KmJUbHKPetx.Tp84N.AYM/19/5bKW76', 1),
+        ('usr-supply-01',      2, 'Marta Gómez (Logística)',     '20203030', 'supply@natudai.com',     '$2b$10$.J0sIJ0/GtPnrLD.KzVjmOQt3uB/gcoNpn.BBhl4R3Y2.JXV3nRH2', 1),
+        ('usr-commercial-01',  4, 'Carla Ramírez (Comercial)',    '30304040', 'comercial@natudai.com',  '$2b$10$O3.JDfCzPVne9WCs.fQeA.rcWnB63UDqnyOOk7xAJ2BK9pquinFLy', 1),
+        ('usr-production-01',  3, 'Luis Torres (Producción)',     '40405050', 'produccion@natudai.com', '$2b$10$0uPtYxoKhgrZxs/k5bMxYevz4ARNULMB21Ur7JOxRreir6w0KtLMG', 1);
+-- Credenciales: 10102020/admin123 · 20203030/supply123 · 30304040/comercial123 · 40405050/prod1234
 
 -- =============================================================================
 -- 4. CLIENTE  (sin dependencias)
@@ -122,7 +126,9 @@ CREATE TABLE `CLIENTE` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 INSERT INTO `CLIENTE` (`id_cliente`, `nombre`, `nit`, `email`, `nivel_partner`) VALUES
-        ('cli-cosmeticos-sa', 'Cosméticos Naturales S.A.S.', '900.555.123-4', 'compras@cosmeticosnaturales.com', 'Gold');
+        ('cli-cosmeticos-sa', 'Cosméticos Naturales S.A.S.', '900.555.123-4', 'compras@cosmeticosnaturales.com', 'Gold'),
+        ('cli-naturvida',     'NaturVida Cosméticos SAS',   '900.777.888-9', 'natur@naturvida.com',         'Platinum'),
+        ('cli-sustenta',      'Sustenta Vida Ltda.',        '900.888.777-6', 'compras@sustentavida.com',    'Gold');
 
 -- =============================================================================
 -- 5. MAQUINA  (sin dependencias)
@@ -160,8 +166,10 @@ CREATE TABLE `PRODUCTO` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 INSERT INTO `PRODUCTO` (`id_producto`, `nombre_producto`, `descripcion`, `stock_actual`, `stock_minimo`, `precio_venta`, `unidad_medida`) VALUES
-        ('prod-fresa-deshid',  'Fresa Deshidratada Premium',  'Fresa deshidratada natural en empaque aluminizado de 250g', 0.00, 20.00, 24000.00, 'Und'),
-        ('prod-bentonita-nat', 'Mascarilla de Bentonita Natural', 'Mascarilla facial 100% bentonita natural, empaque de 100g', 0.00, 30.00, 18000.00, 'Und');
+        ('prod-fresa-deshid',  'Fresa Deshidratada Premium',  'Fresa deshidratada natural en empaque aluminizado de 250g', 5.00, 20.00, 24000.00, 'Und'),
+        ('prod-bentonita-nat', 'Mascarilla de Bentonita Natural', 'Mascarilla facial 100% bentonita natural, empaque de 100g', 25.00, 30.00, 18000.00, 'Und'),
+        ('prod-jabon-aceite',  'Jabón Natural de Aceite de Coco', 'Jabón en barra de coco ecológico, empaque de 120g', 100.00, 80.00, 18500.00, 'Und'),
+        ('prod-algodon-seda',  'Algodón de Seda Natural',       'Algodón natural de alta suavidad para spa y tratamiento facial', 30.00, 50.00, 4200.00, 'Und');
 
 -- =============================================================================
 -- 7. MATERIA_PRIMA  (depende de PROVEEDOR)
@@ -181,7 +189,9 @@ CREATE TABLE `MATERIA_PRIMA` (
 
 INSERT INTO `MATERIA_PRIMA` (`id_mp`, `id_proveedor`, `nombre_mp`, `stock_actual`, `stock_minimo`, `costo_unitario`, `unidad_medida`) VALUES
         ('mp-bentonita-nat', 'prov-agrovalle', 'Bentonita Natural', 200.00, 50.00,  800.00, 'Kg'),
-        ('mp-fresa-fresca',  'prov-agrovalle', 'Fresa Fresca',      500.00, 100.00, 1500.00, 'Kg');
+        ('mp-fresa-fresca',  'prov-agrovalle', 'Fresa Fresca',      500.00, 100.00, 1500.00, 'Kg'),
+        ('mp-coco-aceite',  'prov-herbal',    'Aceite de Coco Virgen', 180.00, 40.00, 1200.00, 'Kg'),
+        ('mp-algodon-seda', 'prov-biofit',    'Algodón de Seda',        80.00, 60.00, 5200.00, 'Kg');
 
 -- =============================================================================
 -- 8. BOM_RECETA  (depende de PRODUCTO y MATERIA_PRIMA)
@@ -199,7 +209,9 @@ CREATE TABLE `BOM_RECETA` (
 
 INSERT INTO `BOM_RECETA` (`id_producto`, `id_mp`, `cantidad_necesaria`) VALUES
         ('prod-bentonita-nat', 'mp-bentonita-nat', 0.0500),
-        ('prod-fresa-deshid',  'mp-fresa-fresca',  1.2000);
+        ('prod-fresa-deshid',  'mp-fresa-fresca',  1.2000),
+        ('prod-jabon-aceite',  'mp-coco-aceite',   0.3000),
+        ('prod-algodon-seda',  'mp-algodon-seda',  0.5000);
 
 -- =============================================================================
 -- 9. PEDIDO  (depende de CLIENTE y USUARIO)
@@ -257,6 +269,18 @@ CREATE TABLE `LOTE_PRODUCCION` (
   CONSTRAINT `fk_lote_producto` FOREIGN KEY (`id_producto`) REFERENCES `PRODUCTO` (`id_producto`),
   CONSTRAINT `fk_lote_usuario` FOREIGN KEY (`id_usuario`) REFERENCES `USUARIO` (`id_usuario`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+INSERT INTO `PEDIDO` (`id_pedido`, `id_cliente`, `id_usuario`, `fecha_orden`, `estado_pedido`, `total_pagar`, `comentarios`) VALUES
+        ('ped-1001', 'cli-cosmeticos-sa', 'usr-supply-01', NOW() - INTERVAL 7 DAY, 'Completado', 370000.00, 'Entrega urgente para lanzamiento'),
+        ('ped-1002', 'cli-naturvida',     'usr-commercial-01', NOW() - INTERVAL 2 DAY, 'Pendiente',   125000.00, 'Cotización en revisión');
+
+INSERT INTO `DETALLE_PEDIDO` (`id_pedido`, `id_producto`, `cantidad`, `precio_unitario`, `subtotal`) VALUES
+        ('ped-1001', 'prod-jabon-aceite', 20, 18500.00, 370000.00),
+        ('ped-1002', 'prod-bentonita-nat', 5, 25000.00, 125000.00);
+
+INSERT INTO `LOTE_PRODUCCION` (`id_lote`, `id_maquina`, `id_producto`, `id_usuario`, `cantidad_esperada`, `fecha_inicio`, `fecha_fin_estimada`, `estado_lote`) VALUES
+        ('lote-1001', 'maq-deshid-01', 'prod-fresa-deshid',  'usr-production-01', 200.00, NOW() - INTERVAL 4 HOUR, NOW() + INTERVAL 2 HOUR, 'En Proceso'),
+        ('lote-1002', 'maq-extrusion-01', 'prod-jabon-aceite', 'usr-supply-01',     80.00,  NOW() - INTERVAL 3 DAY, NOW() - INTERVAL 1 DAY, 'Completado');
 
 -- =============================================================================
 -- Restaurar configuración de sesión

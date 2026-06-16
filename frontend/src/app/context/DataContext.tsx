@@ -286,7 +286,7 @@ interface DataContextType {
   deleteProduct: (id: string) => Promise<boolean>;
 
   // Order CRUD
-  addOrder: (data: { id_cliente: string; id_producto: string; cantidad: number; precio_unitario: number; comentarios?: string }) => Promise<boolean>;
+  addOrder: (data: { id_cliente: string; id_producto: string; cantidad: number; precio_unitario: number; estado_pedido?: string; comentarios?: string }) => Promise<boolean>;
   updateOrderStatus: (id: string, estado: string) => Promise<boolean>;
   cancelOrder: (id: string, comentarios?: string) => Promise<boolean>;
   updateOrderComments: (id: string, comentarios: string) => Promise<boolean>;
@@ -486,7 +486,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   }, [fetchProducts]);
 
   // Orders
-  const addOrder = useCallback(async (data: { id_cliente: string; id_producto: string; cantidad: number; precio_unitario: number; comentarios?: string }): Promise<boolean> => {
+  const addOrder = useCallback(async (data: { id_cliente: string; id_producto: string; cantidad: number; precio_unitario: number; estado_pedido?: string; comentarios?: string }): Promise<boolean> => {
     try {
       await api.post("/pedidos", data);
       await fetchOrders();

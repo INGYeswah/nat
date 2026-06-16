@@ -52,10 +52,15 @@ router.get('/:id', auth, permiso, async (req, res) => {
 
 // ── POST /api/pedidos ─────────────────────────────────────────────────────────
 router.post('/', auth, permiso, async (req, res) => {
-  const { id_cliente, id_producto, cantidad, precio_unitario, comentarios } = req.body;
+  const { id_cliente, id_producto, cantidad, precio_unitario, estado_pedido, comentarios } = req.body;
   if (!id_cliente || !id_producto || !cantidad || !precio_unitario)
     return res.status(400).json({
       error: 'id_cliente, id_producto, cantidad y precio_unitario son obligatorios.'
+    });
+
+  if (estado_pedido && !ESTADOS_VALIDOS.includes(estado_pedido))
+    return res.status(400).json({
+      error: `Estado inválido. Opciones: ${ESTADOS_VALIDOS.join(', ')}`
     });
 
   const conn = await pool.getConnection();
@@ -63,11 +68,12 @@ router.post('/', auth, permiso, async (req, res) => {
   try {
     const total     = cantidad * precio_unitario;
     const id_pedido = 'ped-' + Date.now();
+    const estado    = estado_pedido || 'Pendiente';
 
     await conn.query(
       `INSERT INTO PEDIDO (id_pedido, id_cliente, id_usuario, total_pagar, estado_pedido, comentarios)
-       VALUES (?,?,?,?,?,'Pendiente',?)`,
-      [id_pedido, id_cliente, req.usuario.id, total, comentarios || null]
+       VALUES (?,?,?,?,?,?)`,
+      [id_pedido, id_cliente, req.usuario.id, total, estado, comentarios || null]
     );
     await conn.query(
       `INSERT INTO DETALLE_PEDIDO (id_pedido, id_producto, cantidad, precio_unitario, subtotal)
