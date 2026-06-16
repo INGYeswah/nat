@@ -213,7 +213,11 @@ JWT_SECRET=NatuDai_Super_Secret_Key_2026
 PORT=3000
 ```
 
+
+>crea un archivo .env en la carpeta raiz del proyecto 
+>Agrega la contraseña de tu gestor de base de datos mySQL/MariaDB en el campo de password   
 > ⚠️ Agrega `.env` a tu `.gitignore` antes de hacer cualquier commit.
+
 
 ---
 
@@ -286,5 +290,5 @@ Distribuido bajo la licencia **MIT**.
 ---
 
 <p align="center">
-  Hecho con 🌿 por el equipo NatuDai · Universidad Nacional de Colombia · 2024
+  Hecho con 🌿 por el equipo NatuDai · Universidad Nacional de Colombia · 2026
 </p>
