@@ -273,7 +273,7 @@ El archivo `db/pool.js` detecta automáticamente si la conexión es local o remo
 | Juan Diego Rodríguez Bello | Modelo entidad-relación / Base de datos |
 | Arnold Oswaldo Acosta Ortega | Backend Node.js / Arquitectura API |
 | Yoiner Romero Cabrera | Pruebas / Documentación |
-| Yeswah González Tapia | Historias de usuario / Requerimientos |
+| Yeswah González Tapia | Historias de usuario / Requerimientos/ Ensamble Backend-Frontend |
 
 **Profesor:** Jhon Alexander Garcia Camargo — Sistemas de Información, UNAL
 
